@@ -1,0 +1,22 @@
+Metadata-Version: 1.2
+Name: teleconnection
+Version: 0.1
+Summary: This library operates Space-Time Match-Up operations over Netcdf-Xarray datasets and Geopandas-GeoDataFrames. 				 It is a mandatoryr step for areas of study as geography, epidemiology, sociology, remote sensing, ecology, etc.
+Home-page: https://github.com/PhilipeRLeal/teleconnection
+Author: Philipe Riskalla Leal
+Author-email: leal.philipe@gmail.com
+License: MIT license
+Description: UNKNOWN
+Keywords: teleconnection xarray geopandas space-time reduction
+Platform: UNKNOWN
+Classifier: Topic :: Education
+Classifier: Topic :: Scientific/Engineering
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Requires-Python: >=3.7
