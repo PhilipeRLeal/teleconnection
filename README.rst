@@ -20,8 +20,15 @@ teleconnection
 
 
 
-This library operates Space-Time Match-Up operations over Netcdf-Xarray datasets and Geopandas-GeoDataFrames. 
-It is a mandatoryr step for areas of study as geography, epidemiology, sociology, remote sensing, ecology, etc.
+This library operates teleconnection operations over Netcdf-Xarray datasets. 
+
+It is a mandatory step for areas of study as climatology, remote sensing, ecology, etc.
+
+The algorithm is based on the chapter 3 of the book: 
+
+title: Statistical methods in the atmospheric sciences: an introduction
+Author: Wilks, D. S.
+Year: 1995
 
 
 * Free software: MIT license
