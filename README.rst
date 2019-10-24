@@ -3,18 +3,18 @@ teleconnection
 ====================
 
 
-.. image:: https://img.shields.io/pypi/v/time_space_aggregations.svg
+.. image:: https://img.shields.io/pypi/v/teleconnection.svg
         :target: https://pypi.python.org/pypi/teleconnection
 
-.. image:: https://img.shields.io/travis/PhilipeRLeal/time_space_aggregations.svg
+.. image:: https://img.shields.io/travis/PhilipeRLeal/teleconnection.svg
         :target: https://travis-ci.org/PhilipeRLeal/teleconnection
 
-.. image:: https://readthedocs.org/projects/time-space-match-ups/badge/?version=latest
-        :target: https://time-space-match-ups.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/teleconnection/badge/?version=latest
+        :target: https://teleconnection.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
-.. image:: https://pyup.io/repos/github/PhilipeRLeal/time_space_aggregations/shield.svg
+.. image:: https://pyup.io/repos/github/PhilipeRLeal/teleconnection/shield.svg
      :target: https://pyup.io/repos/github/PhilipeRLeal/teleconnection/
      :alt: Updates
 
