@@ -13,12 +13,37 @@ pd.set_option('display.max_columns', 5000)
 from dask.array import corrcoef as da_corrcoef
 import numpy as np
 import xarray as xr
-
-
+from shapely.geometry import Point, LineString
+import geopandas as gpd
 ####################33 numpy function:
 
 
-def get_teleconnection_via_numpy(ds, variable='air', dim='time'):
+def get_gdf(Correlate, Teleconnection, index, crs={'init' :'epsg:4326'}):
+    
+        
+    Teleconnection_paths = Correlate.to_dask_dataframe().idxmin(axis=1).compute()
+    
+    origin = Teleconnection_paths.index
+    to_point = Teleconnection_paths.values
+    
+    Origin_points = []
+    destination_points = []
+    lat, lon = index.columns
+    for o,p in zip(origin, to_point): 
+    
+        Origin_points.append(Point(index.iloc[o][lon], index.iloc[o][lat]))
+        destination_points.append(Point(index.iloc[p][lon], index.iloc[p][lat]))
+        
+    Teleconnection_paths = [LineString( (op, dp)) for op, dp in zip(Origin_points, destination_points)]
+    
+    Teleconnection_paths = gpd.GeoDataFrame({'Teleconnection':Teleconnection}, 
+                                            geometry=Teleconnection_paths,
+                                            crs=crs,
+                                            index=np.arange(Teleconnection.size))
+    
+    return Teleconnection_paths
+
+def get_teleconnection_via_numpy(ds, variable='air', dim='time', Telecon_threshold= -0.5):
     
     '''
     
@@ -60,39 +85,60 @@ def get_teleconnection_via_numpy(ds, variable='air', dim='time'):
     
     locations_depth = np.prod([ds.coords[x].size for x in listed_dims])
     
-    locations_shape = [ds.coords[x].size for x in listed_dims]
+    #locations_shape = [ds.coords[x].size for x in listed_dims]
     
+    
+    idx = pd.MultiIndex.from_product([ds.coords[x].values for x in listed_dims], names=listed_dims)
+    
+    index = idx.to_frame().reset_index(drop=True)
     
     correlation_dim_depth = ds.coords[dim].size
     
     
     to_shape = (correlation_dim_depth, locations_depth)
     
-    print('to_shape', to_shape)
     
-    Correlate = np.abs(da_corrcoef(da.data.reshape(to_shape), 
+    da = da.data.reshape(to_shape)
+	
+    Correlate = da_corrcoef(da, 
                        rowvar=False # to ensure that each column is an entry 
                                     # (i.e. a different location in space that
                                     # must be correlated with everyone else) 
-                       
-                       ).min(axis=1) # getting minimum for each location in space
+                            )
+    
+    
+    Teleconnection = Correlate.min(axis=1) # getting minimum for each location in space
                 
-                      ) # turning all to absolute values. 
+                      
     
+    Teleconnection_paths = get_gdf(Correlate, Teleconnection, index)
+
+    Teleconnection_paths = Teleconnection_paths[Teleconnection_paths['Teleconnection'] <= Telecon_threshold]
     
-    Teleconnection = xr.DataArray(Correlate.reshape(locations_shape), 
-                                  dims=listed_dims, 
-                                  coords = {listed_dims[0]: ds_chunked[listed_dims[0]], 
-                                            listed_dims[1]: ds_chunked[listed_dims[1]]}, 
-                                            name='Teleconnection')
+
+    # use from_series method
+   
     
-    return Teleconnection
+    Teleconnection = xr.DataArray(data=Correlate, 
+                                              dims=idx.names,
+                                              #coords=idx,
+                                              name='Teleconnection')
+    
+    for name in index.columns:
+        
+        Teleconnection[name] = (name, index[name])
+        
+        Teleconnection = Teleconnection.sortby(name)
+    
+    return Teleconnection, Teleconnection_paths
 
 
 
 
 if '__main__' == __name__:
         
+    import cartopy.crs as ccrs
+    import matplotlib.pyplot as plt
     
     
     ds = xr.tutorial.open_dataset('air_temperature').load()
@@ -103,16 +149,30 @@ if '__main__' == __name__:
     ds_chunked = ds_month.chunk({'lon': 1000, 'lat': 1000})
     
     
-    
-    Teleconnection_map_via_np = get_teleconnection_via_numpy(ds_chunked, variable='air')
+    Teleconnection, Teleconnection_paths = get_teleconnection_via_numpy(ds_chunked, variable='air')
         
-   
+    
     # Plotting all teleconnection map
-    Teleconnection_map_via_np.plot(cmap='viridis')
+    
+    
+    Projection =ccrs.PlateCarree()
+    
+    fig, axs = plt.subplots(1,2, subplot_kw={'projection':Projection})
+    
+    axs = axs.ravel()
+    
+    Teleconnection.plot(ax=axs[0], transform = Projection, cmap='viridis')
+    
+    Teleconnection_paths.plot(ax=axs[0], 
+                              column='Teleconnection', 
+                              transform = Projection,
+                              cmap='viridis', 
+                              label='Teleconnection')
     
      # Plotting only relevant teleconnection values
-    Teleconnection_map_via_np.where((Teleconnection_map_via_np > 0.3) & 
-                                    (Teleconnection_map_via_np < 0.6), 
-                                    drop=True).plot(cmap='viridis')
+    Teleconnection.where((Teleconnection > 0.8), 
+                                    drop=True).plot(ax=axs[1], 
+                                                    transform=Projection, 
+                                                    cmap='viridis')
     
     

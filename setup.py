@@ -3,9 +3,10 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages, find_namespace_packages
+from setuptools import setup, find_packages
 
 
+from version_file_seeker import find_version
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -15,7 +16,7 @@ with open('HISTORY.rst') as history_file:
 	
 
 
-Version = '0.1'
+Version = find_version('', '__init__.py')
 
 
 with open('requirements_dev.txt') as requirements_file:
