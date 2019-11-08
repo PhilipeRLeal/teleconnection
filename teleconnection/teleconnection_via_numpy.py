@@ -15,6 +15,9 @@ import numpy as np
 import xarray as xr
 from shapely.geometry import Point, LineString
 import geopandas as gpd
+
+from utils import Base_class_space_time_netcdf_gdf 
+
 ####################33 numpy function:
 
 
@@ -134,6 +137,23 @@ def get_teleconnection_via_numpy(ds, variable='air', dim='time', Telecon_thresho
 
 
 
+def main( ds, variable='air', dim='time', Telecon_threshold= -0.5,
+         netcdf_temporal_coord_name='time',
+         longitude_dimension='lon',
+         latitude_dimension='lat'):
+    
+    
+    B = Base_class_space_time_netcdf_gdf(ds, 
+                                         netcdf_temporal_coord_name=netcdf_temporal_coord_name,
+                                         longitude_dimension=longitude_dimension,
+                                         latitude_dimension=latitude_dimension)
+    
+    ds = B.netcdf_ds
+    
+    
+
+
+    return get_teleconnection_via_numpy(ds, variable=variable, dim=dim, Telecon_threshold= Telecon_threshold)
 
 if '__main__' == __name__:
         
@@ -141,7 +161,10 @@ if '__main__' == __name__:
     import matplotlib.pyplot as plt
     
     
+    
+    
     ds = xr.tutorial.open_dataset('air_temperature').load()
+    
     
     ds_month = ds.resample(time='M').mean('time')
     
@@ -149,7 +172,9 @@ if '__main__' == __name__:
     ds_chunked = ds_month.chunk({'lon': 1000, 'lat': 1000})
     
     
-    Teleconnection, Teleconnection_paths = get_teleconnection_via_numpy(ds_chunked, variable='air')
+    
+    
+    Teleconnection, Teleconnection_paths = main(ds_chunked, variable='air')
         
     
     # Plotting all teleconnection map
